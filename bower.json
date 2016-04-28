@@ -1,0 +1,10 @@
+{
+  "name": "gu-prova",
+  "description": "",
+  "dependencies": {
+    "angular": "^1.5.5",
+    "three.js": "threejs#*",
+    "jquery": "^2.2.3",
+    "underscore": "^1.8.3"
+  }
+}
