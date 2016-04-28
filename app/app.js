@@ -11,7 +11,7 @@ var ejs = require('ejs');
 dotenv.config({path: path.join(__dirname, '../.env')});
 
 // routes
-var routes = require('./routes/index');
+var routes = require('./src/routes/index');
 
 var app = express();
 
