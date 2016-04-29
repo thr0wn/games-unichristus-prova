@@ -29,18 +29,10 @@ app.use(cookieParser());
 app.use('/', routes);
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
-
-// error handlers
-
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
+  app.use(express.static(path.join(__dirname, '..')));
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('views/error', {
@@ -58,6 +50,14 @@ app.use(function(err, req, res, next) {
     message: err.message,
     error: {}
   });
+});
+
+// error handlers
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
 });
 
 module.exports = app;

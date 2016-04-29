@@ -35,14 +35,14 @@ gulp.task('inject', function () {
     var vendorFiles = gulp.src(mainBowerFiles(), { read: false });
 
     return gulp.src(resources.views, { base: 'public' })
-        .pipe(plugins.inject(appFiles, { name: 'app', relative: true, removeTags: true }))
-        .pipe(plugins.inject(vendorFiles, { name: 'vendor', relative: true, removeTags: true }))
+        .pipe(plugins.inject(appFiles, { name: 'app', removeTags: true }))
+        .pipe(plugins.inject(vendorFiles, { name: 'vendor', removeTags: true }))
         .pipe(gulp.dest(resources.tmp));
 });
 
 gulp.task('useref', function () {
     var useref = gulp.src(path.join(resources.tmp, '**/*.html'))
-        .pipe(plugins.useref({ searchPath: 'public' }));
+        .pipe(plugins.useref({ searchPath: __dirname, noconcat: !argv.release}));
     if (argv.release) {
         useref = useref
             .pipe(plugins.if('*.js', plugins.uglify()))

@@ -1,9 +1,9 @@
 // url http://codepen.io/citylims/pen/vNRPxK
 
 // generateUniverse(15);
-function generateUniverse(galaxies) {
-    var canvas = $('main-canvas')[0];
-    
+function generateUniverse(galaxies, opts) {
+    opts = opts || {};
+
     // setting the scene
     var space = "#151718";
     var canvas_height = window.innerHeight;
@@ -18,7 +18,7 @@ function generateUniverse(galaxies) {
     //renderer
     var renderer = new THREE.WebGLRenderer({
         alpha: true,
-        canvas: $('#main-canvas')[0]
+        canvas: opts.canvas
     });
     renderer.setSize(canvas_width, canvas_height);
     renderer.shadowMap.enabled = true;
@@ -36,9 +36,11 @@ function generateUniverse(galaxies) {
     }
 
     //controls
-    // controls = new THREE.OrbitControls(camera);
-    // controls.damping = 0.2;
-    // controls.maxDistance = 900;
+    if (opts.controls) {
+        controls = new THREE.OrbitControls(camera);
+        controls.damping = 0.2;
+        controls.maxDistance = 900;
+    }
 
     //particle objects
     THREE.ImageUtils.crossOrigin = true;
@@ -75,8 +77,8 @@ function generateUniverse(galaxies) {
             size: s,
             transparent: true,
             opacity: o,
-            map: THREE.ImageUtils.loadTexture(
-                "https://s3-us-west-2.amazonaws.com/s.cdpn.io/61062/gradient.png"
+            map: new THREE.TextureLoader().load(
+                "imgs/gradient.png"
             )
         });
     }
@@ -128,7 +130,7 @@ function generateUniverse(galaxies) {
     };
     //animations
     function animation() {
-        scene.rotation.y -= .0002;
+        scene.rotation.y -= .00002;
     };
 
     render();

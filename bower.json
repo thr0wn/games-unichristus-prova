@@ -2,9 +2,9 @@
   "name": "gu-prova",
   "description": "",
   "dependencies": {
+    "jquery": "^2.2.3",
     "angular": "^1.5.5",
     "three.js": "threejs#*",
-    "jquery": "^2.2.3",
     "underscore": "^1.8.3"
   }
 }
