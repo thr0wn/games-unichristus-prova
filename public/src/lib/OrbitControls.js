@@ -64,19 +64,11 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.minPolarAngle = 0; // radians
 	this.maxPolarAngle = Math.PI; // radians
 
-	// How far you can orbit horizontally, upper and lower limits.
-	// If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
-	this.minAzimuthAngle = - Infinity; // radians
-	this.maxAzimuthAngle = Infinity; // radians
-
 	// Set to true to disable use of the keys
 	this.noKeys = false;
 
 	// The four arrow keys
 	this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
-
-	// Mouse buttons
-	this.mouseButtons = { ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
 
 	////////////
 	// internals
@@ -100,15 +92,12 @@ THREE.OrbitControls = function ( object, domElement ) {
 	var dollyEnd = new THREE.Vector2();
 	var dollyDelta = new THREE.Vector2();
 
-	var theta;
-	var phi;
 	var phiDelta = 0;
 	var thetaDelta = 0;
 	var scale = 1;
 	var pan = new THREE.Vector3();
 
 	var lastPosition = new THREE.Vector3();
-	var lastQuaternion = new THREE.Quaternion();
 
 	var STATE = { NONE : -1, ROTATE : 0, DOLLY : 1, PAN : 2, TOUCH_ROTATE : 3, TOUCH_DOLLY : 4, TOUCH_PAN : 5 };
 
@@ -162,7 +151,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		// get X column of matrix
 		panOffset.set( te[ 0 ], te[ 1 ], te[ 2 ] );
 		panOffset.multiplyScalar( - distance );
-
+		
 		pan.add( panOffset );
 
 	};
@@ -175,11 +164,11 @@ THREE.OrbitControls = function ( object, domElement ) {
 		// get Y column of matrix
 		panOffset.set( te[ 4 ], te[ 5 ], te[ 6 ] );
 		panOffset.multiplyScalar( distance );
-
+		
 		pan.add( panOffset );
 
 	};
-
+	
 	// pass in x,y of change desired in pixel space,
 	// right and down are positive
 	this.pan = function ( deltaX, deltaY ) {
@@ -250,23 +239,20 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		// angle from z-axis around y-axis
 
-		theta = Math.atan2( offset.x, offset.z );
+		var theta = Math.atan2( offset.x, offset.z );
 
 		// angle from y-axis
 
-		phi = Math.atan2( Math.sqrt( offset.x * offset.x + offset.z * offset.z ), offset.y );
+		var phi = Math.atan2( Math.sqrt( offset.x * offset.x + offset.z * offset.z ), offset.y );
 
-		if ( this.autoRotate && state === STATE.NONE ) {
+		if ( this.autoRotate ) {
 
 			this.rotateLeft( getAutoRotationAngle() );
 
 		}
 
-		theta += thetaDelta;
-		phi += phiDelta;
-
-		// restrict theta to be between desired limits
-		theta = Math.max( this.minAzimuthAngle, Math.min( this.maxAzimuthAngle, theta ) );
+		theta += thetaDelta / 20;
+		phi += phiDelta / 20;
 
 		// restrict phi to be between desired limits
 		phi = Math.max( this.minPolarAngle, Math.min( this.maxPolarAngle, phi ) );
@@ -278,7 +264,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		// restrict radius to be between desired limits
 		radius = Math.max( this.minDistance, Math.min( this.maxDistance, radius ) );
-
+		
 		// move target to panned location
 		this.target.add( pan );
 
@@ -293,22 +279,16 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		this.object.lookAt( this.target );
 
-		thetaDelta = 0;
-		phiDelta = 0;
+		thetaDelta *= 0.99;
+		phiDelta *= 0.99;
 		scale = 1;
 		pan.set( 0, 0, 0 );
 
-		// update condition is:
-		// min(camera displacement, camera rotation in radians)^2 > EPS
-		// using small-angle approximation cos(x/2) = 1 - x^2 / 8
-
-		if ( lastPosition.distanceToSquared( this.object.position ) > EPS
-		    || 8 * (1 - lastQuaternion.dot(this.object.quaternion)) > EPS ) {
+		if ( lastPosition.distanceToSquared( this.object.position ) > EPS ) {
 
 			this.dispatchEvent( changeEvent );
 
 			lastPosition.copy( this.object.position );
-			lastQuaternion.copy (this.object.quaternion );
 
 		}
 
@@ -323,18 +303,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 		this.object.position.copy( this.position0 );
 
 		this.update();
-
-	};
-
-	this.getPolarAngle = function () {
-
-		return phi;
-
-	};
-
-	this.getAzimuthalAngle = function () {
-
-		return theta
 
 	};
 
@@ -355,21 +323,21 @@ THREE.OrbitControls = function ( object, domElement ) {
 		if ( scope.enabled === false ) return;
 		event.preventDefault();
 
-		if ( event.button === scope.mouseButtons.ORBIT ) {
+		if ( event.button === 0 ) {
 			if ( scope.noRotate === true ) return;
 
 			state = STATE.ROTATE;
 
 			rotateStart.set( event.clientX, event.clientY );
 
-		} else if ( event.button === scope.mouseButtons.ZOOM ) {
+		} else if ( event.button === 1 ) {
 			if ( scope.noZoom === true ) return;
 
 			state = STATE.DOLLY;
 
 			dollyStart.set( event.clientX, event.clientY );
 
-		} else if ( event.button === scope.mouseButtons.PAN ) {
+		} else if ( event.button === 2 ) {
 			if ( scope.noPan === true ) return;
 
 			state = STATE.PAN;
@@ -378,11 +346,9 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		}
 
-		if ( state !== STATE.NONE ) {
-			document.addEventListener( 'mousemove', onMouseMove, false );
-			document.addEventListener( 'mouseup', onMouseUp, false );
-			scope.dispatchEvent( startEvent );
-		}
+		scope.domElement.addEventListener( 'mousemove', onMouseMove, false );
+		scope.domElement.addEventListener( 'mouseup', onMouseUp, false );
+		scope.dispatchEvent( startEvent );
 
 	}
 
@@ -434,14 +400,14 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 			panEnd.set( event.clientX, event.clientY );
 			panDelta.subVectors( panEnd, panStart );
-
+			
 			scope.pan( panDelta.x, panDelta.y );
 
 			panStart.copy( panEnd );
 
 		}
 
-		if ( state !== STATE.NONE ) scope.update();
+		scope.update();
 
 	}
 
@@ -449,8 +415,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		if ( scope.enabled === false ) return;
 
-		document.removeEventListener( 'mousemove', onMouseMove, false );
-		document.removeEventListener( 'mouseup', onMouseUp, false );
+		scope.domElement.removeEventListener( 'mousemove', onMouseMove, false );
+		scope.domElement.removeEventListener( 'mouseup', onMouseUp, false );
 		scope.dispatchEvent( endEvent );
 		state = STATE.NONE;
 
@@ -458,7 +424,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	function onMouseWheel( event ) {
 
-		if ( scope.enabled === false || scope.noZoom === true || state !== STATE.NONE ) return;
+		if ( scope.enabled === false || scope.noZoom === true ) return;
 
 		event.preventDefault();
 		event.stopPropagation();
@@ -494,7 +460,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	function onKeyDown( event ) {
 
 		if ( scope.enabled === false || scope.noKeys === true || scope.noPan === true ) return;
-
+		
 		switch ( event.keyCode ) {
 
 			case scope.keys.UP:
@@ -563,7 +529,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		}
 
-		if ( state !== STATE.NONE ) scope.dispatchEvent( startEvent );
+		scope.dispatchEvent( startEvent );
 
 	}
 
@@ -630,7 +596,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 				panEnd.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
 				panDelta.subVectors( panEnd, panStart );
-
+				
 				scope.pan( panDelta.x, panDelta.y );
 
 				panStart.copy( panEnd );
@@ -672,4 +638,3 @@ THREE.OrbitControls = function ( object, domElement ) {
 };
 
 THREE.OrbitControls.prototype = Object.create( THREE.EventDispatcher.prototype );
-THREE.OrbitControls.prototype.constructor = THREE.OrbitControls;

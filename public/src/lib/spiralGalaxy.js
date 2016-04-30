@@ -6,6 +6,17 @@ var generateSpiralGalaxy = (function () {
         windowHalfY = window.innerHeight / 2,
         camera, scene, renderer, particleSystem;
     var PI2 = Math.PI * 2;
+    var starTypes = {
+        default: {
+          color: '#fff'  
+        },
+        sun: {
+            color: '#FFFCB6'
+        },
+        blackHole: {
+            color: '#000'
+        }
+    };
 
     function generateSpiralGalaxy(opts) {
         this.opts = opts || {};
@@ -40,10 +51,13 @@ var generateSpiralGalaxy = (function () {
         document.body.appendChild(container);
        
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera.position.z = 6;
-        camera.position.y = 6;
+        camera.position.x = 1.6567064593375325;
+        camera.position.z = 5.63133482662673;
+        camera.position.y = 3.648241059856464;
         controls = new THREE.OrbitControls(camera);
         controls.addEventListener('change', render);
+        controls.enabled = typeof opts.controls !== 'undefined' ? opts.controls : true;
+        controls.maxDistance = 10;
         scene = new THREE.Scene();
 
         renderer = feature.webGL ? new THREE.WebGLRenderer() : document.textContent = "Your browser does not support WebGL.";
@@ -73,8 +87,8 @@ var generateSpiralGalaxy = (function () {
         });
         // Galaxy properties
         var galaxy = new THREE.Geometry();
-        var starsPerArm = 1000;
-        var arms = 5;
+        var starsPerArm = 500;
+        var arms = 8;
         var armAngle = 270 / arms;
         // Create the galaxy structure
         for (arm = 0; arm < arms; arm++) {
@@ -96,6 +110,14 @@ var generateSpiralGalaxy = (function () {
                 }
             }
         }
+        // universe background
+        var starsInBg = 5000;
+        for (var i = 0; i < starsInBg; i++) {
+            x = rand() * 20;
+            y = rand() * 20;
+            z = rand() * 20;
+            galaxy.vertices.push(new THREE.Vector3(x, y, z));
+        }
         // Create the particle system
         particleSystem = new THREE.ParticleSystem(galaxy, shaderMaterial);
         particleSystem.sortParticles = true;
@@ -107,11 +129,21 @@ var generateSpiralGalaxy = (function () {
         console.log("vertices = " + vertices.length);
         // Color variation
         for (var v = 0; v < vertices.length; v++) {
-            values_size[v] = 0.2 + rand();
-            values_color[v] = new THREE.Color(0xffffff);
-            var starType = Math.random();
-            values_color[v].setRGB(1, 1, 1);
+            // suns
+            if(Math.random() > 0.999) {
+                values_size[v] = 4 * rand();
+                values_color[v] = new THREE.Color(starTypes.sun.color);
+            } else {
+                values_size[v] = 1 * rand();
+                values_color[v] = new THREE.Color(starTypes.default.color);
+            }
         }
+        //galaxy center
+        galaxy.vertices.push(new THREE.Vector3(0, 0, 0));
+        attributes.size.value.push(6);
+        attributes.ca.value.push(new THREE.Color(starTypes.blackHole.color));
+        // skybox
+        var skybox = createSkyBox('imgs/galaxy3.jpg', scene);
         // Add the particle system to the scene
         scene.add(particleSystem);
         // Resize listener
@@ -158,6 +190,14 @@ var generateSpiralGalaxy = (function () {
     }
     function rand() {
         return Math.random() - 0.5;
+    }
+    function getRandomColor() {
+        var whiteStars = 20;
+        var colors = [starTypes.sun.color];
+        for (var i = 0; i < whiteStars; i++) {
+            colors.push(starTypes.default.color);
+        }
+        return colors[Math.floor(Math.random()*colors.length)];
     }
 
     return generateSpiralGalaxy;

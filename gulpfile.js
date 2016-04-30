@@ -75,8 +75,8 @@ gulp.task('serve', ['build'], function () {
         'bower.json',
         'public/**/*'
     ], function () {
-        plugins.sequence('build', function () {
-            browserSync.reload();
+        plugins.sequence('build')(function () {
+            setTimeout(browserSync.reload, 100);
         });
     });
 });

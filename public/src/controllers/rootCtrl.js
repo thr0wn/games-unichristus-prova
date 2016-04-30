@@ -3,7 +3,7 @@ angular.module('gu')
         '$rootScope',
         function ($rootScope) {
             // generateUniverse(10, { canvas: angular.element('#main-canvas')[0], controls: true });
-            generateSpiralGalaxy();
+            generateSpiralGalaxy({controls: true});
         }
     ]);
 
