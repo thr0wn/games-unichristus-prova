@@ -14,7 +14,7 @@ angular.module('gu')
 			$rootScope.characters = characters;
 			$rootScope.selectCharacter = function (ch) {
 				if ($rootScope.selectedWorld) {
-					$rootScope.selectWorld(null)
+					$rootScope.selectedWorld = null;
 				}
 				$rootScope.selectedCharacter = ch;
 			};
@@ -22,7 +22,7 @@ angular.module('gu')
 			$rootScope.worlds = worlds;
 			$rootScope.selectWorld = function (world) {
 				if ($rootScope.selectedCharacter) {
-					$rootScope.selectCharacter(null)
+					$rootScope.selectedCharacter = null;
 				}
 				if (world) {
 					lookAt(world ? getStarPosition(world.starKey) : galaxy.controls.position0)
