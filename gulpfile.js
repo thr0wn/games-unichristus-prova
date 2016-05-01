@@ -16,6 +16,9 @@ var resources = {
     styles: [
         'public/styles/**/*.css'
     ],
+    fonts: [
+        'bower_components/components-font-awesome/fonts/*'
+    ],
     javascript: [
         'public/src/index.js',
         'public/src/**/*.js'
@@ -54,13 +57,18 @@ gulp.task('useref', function () {
         .pipe(gulp.dest(resources.out));
 });
 
+gulp.task('fonts', function () {
+    return gulp.src(resources.fonts)
+        .pipe(gulp.dest(path.join(resources.out, 'fonts')));
+});
+
 gulp.task('copy', function () {
     return gulp.src(resources.imgs, { base: 'public' })
         .pipe(gulp.dest(resources.out));
 });
 
 gulp.task('build', function (cb) {
-    plugins.sequence('clean', 'copy', 'inject', 'useref')(cb);
+    plugins.sequence('clean', ['copy', 'fonts'], 'inject', 'useref', cb);
 });
 
 gulp.task('serve', ['build'], function () {
@@ -75,8 +83,8 @@ gulp.task('serve', ['build'], function () {
         'bower.json',
         'public/**/*'
     ], function () {
-        plugins.sequence('build')(function () {
-            setTimeout(browserSync.reload, 100);
+        plugins.sequence('build', function () {
+            setTimeout(browserSync.reload, 1000);
         });
     });
 });

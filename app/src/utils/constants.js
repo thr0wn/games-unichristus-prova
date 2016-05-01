@@ -1,1 +1,1 @@
-exports.INDEX_TITLE = 'Linguagem Audiovisual Aplicada aos Games';
+exports.INDEX_TITLE = 'Yggdrasil';

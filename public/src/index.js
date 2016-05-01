@@ -1,1 +1,1 @@
-angular.module('gu', []);
+angular.module('gu', ['ui.bootstrap']);
