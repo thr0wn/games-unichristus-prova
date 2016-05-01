@@ -199,10 +199,23 @@ var generateSpiralGalaxy = (function () {
             }
         });
         // skybox
+        var imagePrefix = "imgs/skybox/BlueNebular-";
+        var directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
+        var imageSuffix = ".jpg";
+        var skyGeometry = new THREE.CubeGeometry( 5000, 5000, 5000 );	
+        var materialArray = [];
+        for (var i = 0; i < 6; i++)
+            materialArray.push( new THREE.MeshBasicMaterial({
+                map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
+                side: THREE.BackSide
+            }));
+        var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
+        var skyBox = new THREE.Mesh( skyGeometry, skyMaterial );
+        // scene.add( skyBox );
         var skybox = createSkyBox('imgs/galaxy3.jpg', scene);
         // yggdrasil
         var yggdrasilTexture = THREE.ImageUtils.loadTexture("imgs/objects/yggdrasil-bg-2.png");
-        var yggdrasilMaterial = new THREE.MeshBasicMaterial({ map: yggdrasilTexture, transparent: true, side: THREE.DoubleSide, opacity: 0.6});
+        var yggdrasilMaterial = new THREE.MeshLambertMaterial({ map: yggdrasilTexture, transparent: true, side: THREE.DoubleSide, opacity: 0.8});
         yggdrasilMaterial.map.needsUpdate = true;
         var yggdrasil = this.yggdrasil = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), yggdrasilMaterial);
         yggdrasil.rotateX(Math.PI / 2);

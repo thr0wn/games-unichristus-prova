@@ -29,6 +29,7 @@ var createSkyBox = function (url, scene) {
         });
 
         var skyBox = new THREE.Mesh(geometry, material);
+        skyBox.rotateX(Math.PI/2);
         skyBox.scale.set(-1, 1, 1);
         skyBox.eulerOrder = 'XZY';
         skyBox.renderDepth = 1000.0;
