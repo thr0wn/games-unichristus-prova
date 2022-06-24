@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>
+		<%= title %>
+	</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/png" href="imgs/objects/yggdrasil.jpg" />
+
+	<link rel="stylesheet" href="/bower_components/bootstrap-css-only/css/bootstrap.css">
+	<link rel="stylesheet" href="/bower_components/components-font-awesome/css/font-awesome.css">
+
+	<link rel="stylesheet" href="/public/styles/index.css">
+
+	<script src="/bower_components/jquery/dist/jquery.js"></script>
+	<script src="/bower_components/angular/angular.js"></script>
+	<script src="/bower_components/underscore/underscore-umd.js"></script>
+	<script src="/bower_components/feature.js/feature.js"></script>
+	<script src="/bower_components/three.js/build/three.js"></script>
+	<script src="/bower_components/angular-animate/angular-animate.js"></script>
+	<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+	<script src="/bower_components/tween.js/src/Tween.js"></script>
+
+	<script src="/public/src/index.js"></script>
+	<script src="/public/src/constants/characters.js"></script>
+	<script src="/public/src/constants/worlds.js"></script>
+	<script src="/public/src/controllers/rootCtrl.js"></script>
+	<script src="/public/src/lib/OrbitControls.js"></script>
+	<script src="/public/src/lib/drawStar.js"></script>
+	<script src="/public/src/lib/skybox.js"></script>
+	<script src="/public/src/lib/spiralGalaxy.js"></script>
+	<script src="/public/src/lib/universe.js"></script>
+</head>
+
+<body ng-app="gu" ng-controller="rootCtrl">
+	<uib-alert ng-if="webGlDisabled">Para ver o conteúdo dessa página é necessário usar um browser com suporte a webgl.</uib-alert>
+	<div id="canvas-container"></div>
+	<div ng-if="!webGlDisabled" class="ui-container container">
+
+		<div class="row padding-20">
+			<div class="col-md-6 main-buttons">
+				<!-- Personagens -->
+				<div class="btn-group" uib-dropdown is-open="charactersIsOpen">
+					<button id="characters-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+					Personagens
+					<span class="caret"></span>
+				</button>
+					<ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="characters-button">
+						<li ng-repeat="character in characters" role="menuitem" ng-click="selectCharacter(character)"><a href="">{{character.name}}</a></li>
+					</ul>
+				</div>
+
+				<!-- Worlds -->
+				<div class="btn-group" uib-dropdown is-open="worldsIsOpen">
+					<button id="worlds-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
+					Cenários
+					<span class="caret"></span>
+				</button>
+					<ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="worlds-button">
+						<li ng-repeat="world in worlds" role="menuitem" ng-click="selectWorld(world)"><a href="">{{world.name}}</a></li>
+					</ul>
+				</div>
+
+				<!-- navagation -->
+				<!--<a class="btn btn-default btn-sm ng-class:{'btn-success': !orbitControls, 'btn-danger': orbitControls}" href="" ng-click="toggleOrbitControls()">
+					<i class="fa fa-mouse-pointer fa-fw" aria-hidden="true"></i> mover/ampliar
+				</a>-->
+				<a class="btn btn-default btn-sm btn-success" href="" ng-click="resetCamera()">
+					<i class="fa fa-map-marker fa-fw" aria-hidden="true"></i> centralizar
+				</a>
+			</div>
+		</div>
+
+		<div ng-if="selectedCharacter" class="row padding-20">
+			<div class="col-md-8">
+				<div class="selected-character details black-translucid">
+					<br>
+					<button type="button" class="close" aria-label="Close" ng-click="selectCharacter(null)"><span aria-hidden="true">&times;</span></button>
+					<div class="col-md-12 metadata">
+						<h2 class="name oswald-font">{{selectedCharacter.name}}</h2>
+						<hr>
+						<h5></span>{{selectedCharacter.nameOrigin}}</h5>
+					</div>
+					<div class="item-details col-md-12">
+						<h3 class="oswald-font item-title"><span class="fa fa-file-image-o fa-fw"></span>Imagem</h3>
+						<hr>
+						<div class="col-md-12">
+							<div class="item-detail col-md-12">
+								<img ng-src="{{selectedCharacter.image}}" class="img-thumbnail">
+								<p>&nbsp;</p>
+							</div>
+						</div>
+						<hr>
+						<h3 class="oswald-font item-title"><span class="fa fa-book fa-fw"></span>Descrição</h3>
+						<hr>
+						<div class="col-md-12">
+							<div class="item-detail col-md-12">
+								<p>
+									{{selectedCharacter.desc}}
+								</p>
+							</div>
+						</div>
+						<hr>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div ng-if="selectedWorld" class="row padding-20">
+			<div class="col-md-8">
+				<div class="selected-world details black-translucid">
+					<br>
+					<button type="button" class="close" aria-label="Close" ng-click="selectWorld(null)"><span aria-hidden="true">&times;</span></button>
+					<div class="col-md-12 metadata">
+						<h2 class="name oswald-font">{{selectedWorld.name}}</h2>
+						<hr>
+						<h5></span>{{selectedWorld.nameOrigin}}</h5>
+					</div>
+					<div class="item-details col-md-12">
+						<h3 class="oswald-font item-title"><span class="fa fa-file-image-o fa-fw"></span>Imagem</h3>
+						<hr>
+						<div class="col-md-12">
+							<div class="item-detail col-md-12">
+								<img ng-src="{{selectedWorld.image}}" class="img-thumbnail">
+								<p>&nbsp;</p>
+							</div>
+						</div>
+						<hr>
+						<h3 class="oswald-font item-title"><span class="fa fa-book fa-fw"></span>Descrição</h3>
+						<hr>
+						<div class="col-md-12">
+							<div class="item-detail col-md-12">
+								<p>
+									{{selectedWorld.desc}}
+								</p>
+							</div>
+						</div>
+						<hr>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

@@ -12,6 +12,7 @@
     "dotenv": "^2.0.0",
     "ejs": "~2.3.3",
     "express": "~4.13.1",
+    "express-handlebars": "^6.0.6",
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0"
   },
@@ -31,5 +32,8 @@
     "gulp-watch": "^4.3.5",
     "main-bower-files": "^2.13.0",
     "yargs": "^4.6.0"
+  },
+  "overrides": {
+    "graceful-fs": "^4.2.9"
   }
 }
